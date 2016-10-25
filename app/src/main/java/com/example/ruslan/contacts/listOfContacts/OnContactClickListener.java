@@ -8,4 +8,6 @@ import android.view.View;
 
 public interface OnContactClickListener {
     public void onClickListener(int position);
+
+    public boolean onLongClickListener(int position);
 }
