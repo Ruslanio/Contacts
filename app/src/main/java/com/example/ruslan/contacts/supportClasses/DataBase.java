@@ -16,7 +16,7 @@ public class DataBase {
             "Константин", "Вадим", "Евгений", "Дами", "Владимир", "Игорь", "Семён", "Захар", "Марсель", "Георгий", "Давид", "Антон",
             "Вячеслав", "Артур", "Мадияр", "Степан", "Олег", "Родион", "Назар", "Станислав", "Николай", "Мирослав", "Валерий", "Савва",
             "Марат", "Виктор", "Фёдор", "Святослав", "Добрыня", "Милан", "Виталий", "Юрий", "Ленар", "Ростислав", "Яромир"};
-    private static String[] gavno = {"sdf","gsd","awef","afew","fawe"};
+    private static String[] test = {"sdf","gsd","awef","afew","fawe"};
 
     public static List<Contact> contacts;
     public static List<Contact> favoriteContacts;
@@ -28,7 +28,7 @@ public class DataBase {
     public static void setUpContacts() {
         favoriteContacts = new ArrayList<Contact>();
         int i = 0;
-        for (String name : gavno) {
+        for (String name : test) {
             if (i % 2 == 0)
                 favoriteContacts.add(new Contact(name));
         }

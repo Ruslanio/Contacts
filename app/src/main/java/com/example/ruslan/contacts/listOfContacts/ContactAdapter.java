@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.ruslan.contacts.supportClasses.DataBase;
 import com.example.ruslan.contacts.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,8 @@ public class ContactAdapter extends RecyclerView.Adapter {
         }
         if (holder instanceof FavoriteContactViewHolder) {
             TextView tvName = ((FavoriteContactViewHolder) holder).mFavoriteContactName;
+            ((FavoriteContactViewHolder) holder).bind(position);
+
             if (DataBase.favoriteContacts.size() > 0) {
                 tvName.setText(DataBase.favoriteContacts.get(position).getName());
             }
@@ -86,7 +89,18 @@ public class ContactAdapter extends RecyclerView.Adapter {
     }
 
     public void deleteItem(int position) {
-        DataBase.contacts.remove(position);
+        List<Contact> tempContacts = new ArrayList<>();
+        switch (pageNumber){
+            case 0:
+                tempContacts = DataBase.contacts;
+                break;
+
+            case 1:
+                tempContacts = DataBase.favoriteContacts;
+                break;
+
+        }
+        tempContacts.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -136,7 +150,20 @@ public class ContactAdapter extends RecyclerView.Adapter {
             super(itemView);
             mFavoriteContactName = (TextView) itemView.findViewById(R.id.tv_favorite_contact_name);
         }
-
+        public void bind(final int position) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onContactClickListener.onClickListener(position);
+                }
+            });
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return onContactClickListener.onLongClickListener(position);
+                }
+            });
+        }
     }
 }
 

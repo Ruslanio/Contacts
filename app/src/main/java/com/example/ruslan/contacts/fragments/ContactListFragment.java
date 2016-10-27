@@ -20,6 +20,7 @@ import com.example.ruslan.contacts.listOfContacts.Contact;
 import com.example.ruslan.contacts.listOfContacts.ContactAdapter;
 import com.example.ruslan.contacts.listOfContacts.OnContactClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ import java.util.List;
 public class ContactListFragment extends android.support.v4.app.Fragment implements OnContactClickListener{
 
     private RecyclerView contactRecyclerView;
-    private List<Contact> contacts;
+    List<Contact> tempContacts = new ArrayList<>();
     private RecyclerView.Adapter adapter;
     private String[] names = {"Диас","Матвей","Aртём","Янис","Максим","Дмитрий","Тимофей","Даниил","Роман","Арсений",
             "Егор","Кирилл","Марк","Никита","Андрей","Иван","Алексей","Богдан","Илья","Ярослав","Тимур","Михаил",
@@ -74,6 +75,7 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
             //favorite contacts
             case 1:
                 adapter = new ContactAdapter(1);
+                ((ContactAdapter) adapter).setOnContactClickListener(this);
                 contactRecyclerView.setAdapter(adapter);
                 break;
         }
@@ -83,8 +85,17 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
 
     @Override
     public void onClickListener(int position) {
+        switch (pageNumber){ // normal or favorite contact pressed
+            case 0:
+                tempContacts = DataBase.contacts;
+                break;
+            case 1:
+                tempContacts = DataBase.favoriteContacts;
+                break;
+        }
+
         if(isOrientationLand()){
-            Fragment fragment = ContactInfoFragment.newInstance(DataBase.contacts.get(position).getName(),DataBase.contacts.get(position).getNumber());
+            Fragment fragment = ContactInfoFragment.newInstance(tempContacts.get(position).getName(),tempContacts.get(position).getNumber());
             getFragmentManager()
                     .beginTransaction()
                     .replace(R.id.contact_info_fragment_container,fragment,ContactInfoFragment.class.getName())
@@ -92,8 +103,8 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
         }else{
             Intent intent = new Intent(getActivity(), ContactInfoActivity.class);
 
-            intent.putExtra("name",DataBase.contacts.get(position).getName());
-            intent.putExtra("number",DataBase.contacts.get(position).getNumber());
+            intent.putExtra("name",tempContacts.get(position).getName());
+            intent.putExtra("number",tempContacts.get(position).getNumber());
 
             startActivity(intent);
 
@@ -102,7 +113,7 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
 
     @Override
     public boolean onLongClickListener(int position) {
-        Toast.makeText(getActivity(),"Работает",Toast.LENGTH_LONG).show();
+//        Toast.makeText(getActivity(),"Работает",Toast.LENGTH_LONG).show();
         dialog = DeleteDialogFragment.newInstance(getActivity(),position,(ContactAdapter) adapter);
         dialog.show(getFragmentManager(),"delete");
         return true;
