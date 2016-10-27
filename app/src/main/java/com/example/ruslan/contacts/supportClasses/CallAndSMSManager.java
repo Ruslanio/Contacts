@@ -1,4 +1,4 @@
-package com.example.ruslan.contacts;
+package com.example.ruslan.contacts.supportClasses;
 
 import android.content.Context;
 import android.content.Intent;

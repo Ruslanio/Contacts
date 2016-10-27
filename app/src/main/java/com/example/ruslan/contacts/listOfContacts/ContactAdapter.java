@@ -1,19 +1,13 @@
 package com.example.ruslan.contacts.listOfContacts;
 
-import android.app.FragmentManager;
-import android.content.Context;
-import android.app.DialogFragment;
-import android.media.Image;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.ruslan.contacts.DeleteDialog;
+import com.example.ruslan.contacts.supportClasses.DataBase;
 import com.example.ruslan.contacts.R;
 
 import java.util.List;
@@ -24,54 +18,90 @@ import java.util.List;
 
 public class ContactAdapter extends RecyclerView.Adapter {
 
-    private List<Contact> contacts;
-    private Context context;
     private OnContactClickListener onContactClickListener;
+    private int pageNumber;
+    private ContactAdapter tempAdapter;
 
-    public ContactAdapter(List<Contact> contacts, Context context) {
-        this.contacts = contacts;
-        this.context = context;
+    public ContactAdapter(int pageNumber) {
+        this.pageNumber = pageNumber;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case 0:
+                return new ContactViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contact, null));
+            case 1:
+                return new FavoriteContactViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_favorite_contact, null));
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contact, null);
         return new ContactViewHolder(view);
     }
 
+
+    @Override
+    public int getItemViewType(int position) {
+        return pageNumber;
+    }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-      ((ContactViewHolder) holder).bind(position);
-//      ((ContactViewHolder) holder).bind(onLongContactClickListener,position);
 
-        TextView tvName = ((ContactViewHolder) holder).mContactName;
-        tvName.setText(contacts.get(position).getName());
+        if (holder instanceof ContactViewHolder) {
+            ((ContactViewHolder) holder).bind(position);
 
-        ImageButton btnAddFavorite = ((ContactViewHolder) holder).mAddFavorite;
-        btnAddFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            TextView tvName = ((ContactViewHolder) holder).mContactName;
+            tvName.setText(DataBase.contacts.get(position).getName());
 
+            ImageButton btnAddFavorite = ((ContactViewHolder) holder).mAddFavorite;
+            btnAddFavorite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addFavoriteContact(DataBase.contacts.get(position));
+                }
+            });
+
+        }
+        if (holder instanceof FavoriteContactViewHolder) {
+            TextView tvName = ((FavoriteContactViewHolder) holder).mFavoriteContactName;
+            if (DataBase.favoriteContacts.size() > 0) {
+                tvName.setText(DataBase.favoriteContacts.get(position).getName());
             }
-        });
+        }
     }
 
     @Override
     public int getItemCount() {
-        return contacts.size();
+        switch (pageNumber){
+            case 0:
+                return DataBase.contacts.size();
+            case 1:
+                return DataBase.favoriteContacts.size();
+        }
+        return DataBase.contacts.size();
     }
 
     public void setOnContactClickListener(OnContactClickListener onContactClickListener) {
         this.onContactClickListener = onContactClickListener;
     }
 
-    public void deleteItem(int position){
-        contacts.remove(position);
+    public void deleteItem(int position) {
+        DataBase.contacts.remove(position);
         notifyItemRemoved(position);
     }
 
+    public void addFavoriteContact(Contact contact) {
+        DataBase.favoriteContacts.add(contact);
+//
+//        String fav = "" + DataBase.favoriteContacts.size();
+//        String con = "" + DataBase.contacts.size();
+//        Log.d("myTag","fav "+ fav);
+//        Log.d("myTag","con " + con);
 
-    public class ContactViewHolder extends RecyclerView.ViewHolder {
+    }
+
+
+    class ContactViewHolder extends RecyclerView.ViewHolder {
 
         private TextView mContactName;
         private ImageButton mAddFavorite;
@@ -82,7 +112,7 @@ public class ContactAdapter extends RecyclerView.Adapter {
             mAddFavorite = (ImageButton) itemView.findViewById(R.id.btn_add_to_favorite);
         }
 
-        public void bind( final int position) {
+        public void bind(final int position) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -97,6 +127,15 @@ public class ContactAdapter extends RecyclerView.Adapter {
             });
         }
 
+    }
+
+    class FavoriteContactViewHolder extends RecyclerView.ViewHolder {
+        private TextView mFavoriteContactName;
+
+        public FavoriteContactViewHolder(View itemView) {
+            super(itemView);
+            mFavoriteContactName = (TextView) itemView.findViewById(R.id.tv_favorite_contact_name);
+        }
 
     }
 }
