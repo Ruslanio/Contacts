@@ -1,11 +1,13 @@
 package com.example.ruslan.contacts.listOfContacts;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ruslan.contacts.supportClasses.DataBase;
 import com.example.ruslan.contacts.R;
@@ -21,10 +23,12 @@ public class ContactAdapter extends RecyclerView.Adapter {
 
     private OnContactClickListener onContactClickListener;
     private int pageNumber;
-    private ContactAdapter tempAdapter;
+    private DataBase dataBase = DataBase.getInstance();
+    private Context context;
 
-    public ContactAdapter(int pageNumber) {
+    public ContactAdapter(int pageNumber, Context context) {
         this.pageNumber = pageNumber;
+        this.context = context;
     }
 
     @Override
@@ -52,13 +56,17 @@ public class ContactAdapter extends RecyclerView.Adapter {
             ((ContactViewHolder) holder).bind(position);
 
             TextView tvName = ((ContactViewHolder) holder).mContactName;
-            tvName.setText(DataBase.contacts.get(position).getName());
+            tvName.setText(dataBase.contacts.get(position).getName());
 
             ImageButton btnAddFavorite = ((ContactViewHolder) holder).mAddFavorite;
             btnAddFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    addFavoriteContact(DataBase.contacts.get(position));
+                    if(dataBase.addFavoriteContact(position)){
+                        Toast.makeText(context,"Contact added to favorite",Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context,"Contact is already favorite",Toast.LENGTH_LONG).show();
+                    }
                 }
             });
 
@@ -67,8 +75,8 @@ public class ContactAdapter extends RecyclerView.Adapter {
             TextView tvName = ((FavoriteContactViewHolder) holder).mFavoriteContactName;
             ((FavoriteContactViewHolder) holder).bind(position);
 
-            if (DataBase.favoriteContacts.size() > 0) {
-                tvName.setText(DataBase.favoriteContacts.get(position).getName());
+            if (dataBase.favoriteContacts.size() > 0) {
+                tvName.setText(dataBase.favoriteContacts.get(position).getName());
             }
         }
     }
@@ -77,11 +85,11 @@ public class ContactAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         switch (pageNumber){
             case 0:
-                return DataBase.contacts.size();
+                return dataBase.contacts.size();
             case 1:
-                return DataBase.favoriteContacts.size();
+                return dataBase.favoriteContacts.size();
         }
-        return DataBase.contacts.size();
+        return dataBase.contacts.size();
     }
 
     public void setOnContactClickListener(OnContactClickListener onContactClickListener) {
@@ -92,11 +100,11 @@ public class ContactAdapter extends RecyclerView.Adapter {
         List<Contact> tempContacts = new ArrayList<>();
         switch (pageNumber){
             case 0:
-                tempContacts = DataBase.contacts;
+                tempContacts = dataBase.contacts;
                 break;
 
             case 1:
-                tempContacts = DataBase.favoriteContacts;
+                tempContacts = dataBase.favoriteContacts;
                 break;
 
         }
@@ -105,7 +113,7 @@ public class ContactAdapter extends RecyclerView.Adapter {
     }
 
     public void addFavoriteContact(Contact contact) {
-        DataBase.favoriteContacts.add(contact);
+        dataBase.favoriteContacts.add(contact);
 //
 //        String fav = "" + DataBase.favoriteContacts.size();
 //        String con = "" + DataBase.contacts.size();

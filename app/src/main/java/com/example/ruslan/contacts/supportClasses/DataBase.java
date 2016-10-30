@@ -1,6 +1,10 @@
 package com.example.ruslan.contacts.supportClasses;
 
+import android.content.Context;
+
+import com.example.ruslan.contacts.fragments.ContactListFragment;
 import com.example.ruslan.contacts.listOfContacts.Contact;
+import com.example.ruslan.contacts.listOfContacts.ContactAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,28 +14,31 @@ import java.util.List;
  */
 
 public class DataBase {
-    private static String[] names = {"Диас", "Матвей", "Aртём", "Янис", "Максим", "Дмитрий", "Тимофей", "Даниил", "Роман", "Арсений",
+    private String[] names = {"Диас", "Матвей", "Aртём", "Янис", "Максим", "Дмитрий", "Тимофей", "Даниил", "Роман", "Арсений",
             "Егор", "Кирилл", "Марк", "Никита", "Андрей", "Иван", "Алексей", "Богдан", "Илья", "Ярослав", "Тимур", "Михаил",
             "Владислав", "Александр", "Сергей", "Глеб", "Демид", "Денис", "Руслан", "Павел", "Савелий", "Замир", "Елисей", "Аскар",
             "Константин", "Вадим", "Евгений", "Дами", "Владимир", "Игорь", "Семён", "Захар", "Марсель", "Георгий", "Давид", "Антон",
             "Вячеслав", "Артур", "Мадияр", "Степан", "Олег", "Родион", "Назар", "Станислав", "Николай", "Мирослав", "Валерий", "Савва",
             "Марат", "Виктор", "Фёдор", "Святослав", "Добрыня", "Милан", "Виталий", "Юрий", "Ленар", "Ростислав", "Яромир"};
-    private static String[] test = {"sdf","gsd","awef","afew","fawe"};
 
-    public static List<Contact> contacts;
-    public static List<Contact> favoriteContacts;
+    public List<Contact> contacts;
+    public List<Contact> favoriteContacts;
+    private static DataBase dataBase;
 
-    public DataBase() {
+
+    private DataBase() {
         setUpContacts();
     }
 
-    public static void setUpContacts() {
-        favoriteContacts = new ArrayList<Contact>();
-        int i = 0;
-        for (String name : test) {
-            if (i % 2 == 0)
-                favoriteContacts.add(new Contact(name));
+    public static DataBase getInstance(){
+        if(dataBase == null){
+            dataBase = new DataBase();
         }
+        return dataBase;
+    }
+
+    public void setUpContacts() {
+        favoriteContacts = new ArrayList<Contact>();
 
         contacts = new ArrayList<Contact>();
 
@@ -39,5 +46,20 @@ public class DataBase {
             contacts.add(new Contact(name));
         }
         return;
+    }
+
+    public boolean addFavoriteContact(int position){
+        if(favoriteContacts.contains(contacts.get(position))){
+
+            return false;
+        } else {
+            favoriteContacts.add(contacts.get(position));
+
+            ArrayList<ContactAdapter> adapters = (ArrayList<ContactAdapter>) ContactListFragment.allAdapters;
+            for (ContactAdapter adapter : adapters) {
+                adapter.notifyDataSetChanged();
+            }
+            return true;
+        }
     }
 }

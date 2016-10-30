@@ -32,14 +32,10 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
     private RecyclerView contactRecyclerView;
     List<Contact> tempContacts = new ArrayList<>();
     private RecyclerView.Adapter adapter;
-    private String[] names = {"Диас","Матвей","Aртём","Янис","Максим","Дмитрий","Тимофей","Даниил","Роман","Арсений",
-            "Егор","Кирилл","Марк","Никита","Андрей","Иван","Алексей","Богдан","Илья","Ярослав","Тимур","Михаил",
-            "Владислав","Александр","Сергей","Глеб","Демид","Денис","Руслан","Павел","Савелий","Замир","Елисей","Аскар",
-            "Константин","Вадим","Евгений","Дами","Владимир","Игорь","Семён","Захар","Марсель","Георгий","Давид","Антон",
-            "Вячеслав","Артур","Мадияр","Степан","Олег","Родион","Назар","Станислав","Николай","Мирослав","Валерий","Савва",
-            "Марат","Виктор","Фёдор","Святослав", "Добрыня","Милан","Виталий","Юрий","Ленар","Ростислав","Яромир"};
     private DialogFragment dialog;
     private int pageNumber;
+    private DataBase dataBase = DataBase.getInstance();
+    public static List<ContactAdapter> allAdapters;
 
     public static ContactListFragment newInstance(int page){
         ContactListFragment fragment = new ContactListFragment();
@@ -60,23 +56,27 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        allAdapters = new ArrayList<ContactAdapter>();
+
         pageNumber = getArguments().getInt("page_number");
         contactRecyclerView = (RecyclerView) view.findViewById(R.id.rv_contact_list);
-
-
 
         switch(pageNumber){
             //all contacts
             case 0:
-                adapter = new ContactAdapter(0);
+                adapter = new ContactAdapter(0,getActivity());
                 ((ContactAdapter) adapter).setOnContactClickListener(this);
                 contactRecyclerView.setAdapter(adapter);
+
+                allAdapters.add((ContactAdapter) adapter);
                 break;
             //favorite contacts
             case 1:
-                adapter = new ContactAdapter(1);
+                adapter = new ContactAdapter(1,getActivity());
                 ((ContactAdapter) adapter).setOnContactClickListener(this);
                 contactRecyclerView.setAdapter(adapter);
+
+                allAdapters.add((ContactAdapter) adapter);
                 break;
         }
         contactRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -87,10 +87,10 @@ public class ContactListFragment extends android.support.v4.app.Fragment impleme
     public void onClickListener(int position) {
         switch (pageNumber){ // normal or favorite contact pressed
             case 0:
-                tempContacts = DataBase.contacts;
+                tempContacts = dataBase.contacts;
                 break;
             case 1:
-                tempContacts = DataBase.favoriteContacts;
+                tempContacts = dataBase.favoriteContacts;
                 break;
         }
 
